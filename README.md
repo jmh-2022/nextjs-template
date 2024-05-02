@@ -2,10 +2,12 @@
 
 ### 1. ESLINT, PRETTIER 설정
 
-NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 추가적인 내용을 포함하기 위해 아래 내용을 설명한다. [참고 블로그](https://velog.io/@kuwon15/NextJS-13-Prettier-ESLint-Recoil-%EC%B4%88%EA%B8%B0-%EC%84%B8%ED%8C%85-%ED%95%98%EA%B8%B0)
+NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 추가적인 내용을 포함하기 위해 아래 내용을 설명한다.
+
+[참고 블로그](https://velog.io/@kuwon15/NextJS-13-Prettier-ESLint-Recoil-%EC%B4%88%EA%B8%B0-%EC%84%B8%ED%8C%85-%ED%95%98%EA%B8%B0)
 
   <details>
-    <summary>세팅방법 접기/펼치기</summary>
+    <summary>세팅방법 접기/펼치기 </summary>
     <div markdown="1">
 
 - ### vscode 에서 tab 넓이 2칸으로 변경
@@ -56,26 +58,20 @@ NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 
     </div>
   </details>
 
-### 2. API 호출 로직 정리
+### 2. 아토믹 디자인 패턴을 활용한 패키지 구조 정리
 
-- 서버사이드 렌더링 시 조회 되었던 값을 클라이언트 사이드에서도 사용하기 위해 사용한다.
-
-  [참고링크1](https://soobing.github.io/react/server-rendering-and-react-query/),
-  [참고링크2](https://soobing.github.io/react/next-app-router-react-query/)
-
-### 3. 아토믹 디자인 패턴을 활용한 패키지 구조 정리
-
-- 공통으로 사용하는 컴포넌트와 이외의 것들은 app 폴더 바깥에 만들고, 각 페이지별로 사용하는 컴포넌트 이외의 것들은 안으로 넣었다.
+- 공통으로 사용하는 컴포넌트와 이외의 것들은 /src 하위 폴더에 만들고, /src/app/{기타경로} "기타경로" 에서 각각이 필요한 컴포넌트 형태가 다를 수 있기 때문에
+  아토믹 디자인 형태를 일부분 차용하였다.
 
   맞는지는 모르겠지만 DDD와 아토믹 디자인 패턴 섞어 적용해보았다.
 
   ```Shell
-  ├── app # app 하위 파일은 라우팅이 되며 (DDD 및 아토믹 디자인 참하여 폴드 구조화 하였다.)
-  │   ├── (route) # 라우팅 그룹을 나눌 수 있다 ex) (admin), (user)
+  ├── app # app 하위 폴더는 nextjs 라우팅 경로로 인지한다. (DDD 및 아토믹 디자인 참고하여 폴드 구조화 하였다.)
+  │   ├── (route) # 소괄호를 넣을 경우 nextjs 경로로 인지하지 않는다. 하위 내용은 경로로 인지할 수 있으며, 라우팅 그룹을 나누고자할때 사용 ex) (admin), (user)
   │   ├── favicon.ico
   │   ├── globals.css
   │   ├── layout.tsx
-  │   ├── page.tsx
+  │   ├── page.tsx # "/" 경로에 그려질 내용이 담긴다.
   │   └── posts # app 하위에 폴더를 만들게 되면 라우팅이 된다. ex) /posts
   │       ├── _components # 폴더 이름 앞에 "_" 붙이 게되면 경로로 인식하지 않는다.
   │       │   ├── molecules
@@ -84,6 +80,7 @@ NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 
   │       │       └── index.ts
   │       ├── _hooks
   │       └── _service
+  │       └── page.tsx # "/posts" 호출 시 보여질 내용이 담긴다.
   ├── components # 공통으로 사용될 컴포넌트를 정의 하며, 아토믹디자인을 참고 하였다.
   │   ├── atoms # 더이상 쪼개어 질 수 없는 컴포넌트를 모아둔다.
   │   │   ├── Button.tsx
@@ -120,7 +117,7 @@ NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 
 
   [참고링크2 - 아토믹디자인과 도메인주도 설계가 바탕이 되는 디자인 시스템](https://brunch.co.kr/@designsystemguy/3)
 
-### 4. 테일윈드, tailwind-merge, cva, clsx를 활용한 리액트 컴포넌트 관리
+### 3. 테일윈드, tailwind-merge, cva, clsx를 활용한 리액트 컴포넌트 관리
 
 - 다음 적용사항은 테일윈드의 조건식 넣기 까다로운 불편함과 코드가 지저분해지는 문제를 해결하기 위해 적용하였습니다.
 
@@ -131,3 +128,45 @@ NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 
 - tailwind-merge: props로 받아온 className은 적용되지 않지만 tailwind-merge 라이브러리를 사용하면 가능하여 추가
 
 [참고링크 - tailwind를 이용한 효율적인(?) React Component 관리 tailwind-merge cva clsx 파헤치기](https://velog.io/@qwzx16/tailwind%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-React-Component-%EA%B4%80%EB%A6%ACtailwind-merge-cva-clsx-%ED%8C%8C%ED%97%A4%EC%B9%98%EA%B8%B0)
+
+### 4. nextjs 환경 변수 설정 (로컬, 개발, 스테이징, 운영)
+
+- nextjs 를 실행시키기 위해 환경을 local, dev, staging, prod 환경으로 나누어 작업하는 방법을 공유한다.
+  package.json 의 script 영역을 아래와 같이 작성하여준다. 아래와 같이 사용하면 환경별 분리 작업이 가능하다.
+
+  ```json
+  "scripts": {
+        "lint": "next lint",
+        "local:dev": "env-cmd -f ./env/.env.local next dev -p 3030",
+        "local:build": "env-cmd -f ./env/.env.local next build",
+        "local:start": "env-cmd -f ./env/.env.local next start -p 3030",
+        "dev:dev": "env-cmd -f .env next dev -p 3030",
+        "dev:build": "env-cmd -f .env next build",
+        "dev:start": "env-cmd -f .env next start -p 3030",
+        "staging:dev": "env-cmd -f .env.staging next dev -p 3030",
+        "staging:build": "env-cmd -f .env.staging next build",
+        "staging:start": "env-cmd -f .env.staging next start -p 3030",
+        "prod:dev": "env-cmd -f .env.production next dev -p 3030",
+        "prod:build": "env-cmd -f .env.production next build",
+        "prod:start": "env-cmd -f .env.production next start -p 3030"
+    },
+  ```
+
+- env 파일 생성
+
+  ![alt text](image-1.png)
+  .env.local 파일 내용
+
+  ```env
+  ENV='LOCAL'
+  NEXT_PUBLIC_API_URL=https://dev-api.template.com
+  # NEXT_PUBLIC_API_URL=http://192.168.1.9:9090
+  NEXT_PUBLIC_WEB_URL=http://192.168.1.3:3030
+  ```
+
+### 99. API 호출 로직 정리
+
+- 서버사이드 렌더링 시 조회 되었던 값을 클라이언트 사이드에서도 사용하기 위해 사용한다.
+
+  [참고링크1](https://soobing.github.io/react/server-rendering-and-react-query/),
+  [참고링크2](https://soobing.github.io/react/next-app-router-react-query/)

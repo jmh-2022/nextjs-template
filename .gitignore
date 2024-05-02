@@ -1,36 +1,60 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# 공식 문서 참조: https://help.github.com/articles/ignoring-files/
 
-# dependencies
+# 의존성 관련 파일
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 
-# testing
+# 테스트 관련 파일
 /coverage
 
-# next.js
+# Next.js 빌드 출력
 /.next/
 /out/
 
-# production
+# 프로덕션 빌드 파일
 /build
 
-# misc
+# 잡다한 파일
 .DS_Store
 *.pem
 
-# debug
+# 디버그 로그 파일
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# 로컬 환경 설정 파일
+.env
 .env*.local
+.env*.development
+.env*.production
 
-# vercel
+# Vercel 관련 파일
 .vercel
 
-# typescript
+# TypeScript 관련 파일
 *.tsbuildinfo
 next-env.d.ts
+
+# 에디터 설정 및 임시 파일
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+.vscode/
+
+# 운영체제 관련 파일
+Thumbs.db
+
+# 기타 파일
+*.log
+*.pid
+*.pid.lock
+*.seed
+*.tar.gz
+*.zip
+*.tgz
+*.tmp
