@@ -22,6 +22,9 @@ export async function callFetch<T = unknown>(
       'Content-Type': contentType,
     }
 
+    // cookie 테스트
+    // if
+
     const body =
       contentType === ContetType.applicationJson
         ? JSON.stringify(props)
