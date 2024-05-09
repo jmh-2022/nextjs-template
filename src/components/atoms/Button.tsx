@@ -1,7 +1,7 @@
-import { cva, VariantProps } from 'class-variance-authority'
-import { ButtonHTMLAttributes, FC } from 'react'
-import { cn } from '../cn'
-import { ClassValue } from 'clsx'
+import { cva, VariantProps } from 'class-variance-authority';
+import { ButtonHTMLAttributes, FC } from 'react';
+import { cn } from '../cn';
+import { ClassValue } from 'clsx';
 /**
 VariantProps: class-variance-authority 라이브러리에서 제공하는 클래스 변이 관련 기능을 사용하기 위한 타입입니다.
 이 타입은 cva 함수를 사용할 때 클래스의 변이를 지정하기 위해 필요한 속성들을 정의하고 있습니다.
@@ -34,7 +34,7 @@ export const ButtonVariants = cva(
       size: {
         default: '',
         md: ' w-[6rem] h-[2rem] text-[1rem] rounded-md',
-        lg: 'w-[21rem] h-[7rem] text-[2rem] rounded-3xl',
+        lg: 'w-[21rem] h-[7rem] text-[1rem] rounded-3xl',
         wlg: 'w-[24rem] h-[5rem] text-[2rem]',
         rounded: 'w-[6rem] h-[6rem] rounded-full',
       },
@@ -44,17 +44,17 @@ export const ButtonVariants = cva(
       size: 'default',
     },
   },
-)
+);
 
 interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     //Button의 속성을 타입지정을 통해 손쉽게 사용
     VariantProps<typeof ButtonVariants> {
-  label?: string
+  label?: string;
   //라벨은 단지 string을 넣을때 사용
-  children?: React.ReactElement
+  children?: React.ReactElement;
   //icon component 같은 리엑트 컴포넌트에 사용
-  clsx?: ClassValue
+  clsx?: ClassValue;
   //추가 className
   //추가 className
 }
@@ -84,7 +84,7 @@ const Button = ({
       {children && children}
       {label && label}
     </button>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;

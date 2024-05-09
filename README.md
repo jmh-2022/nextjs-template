@@ -170,3 +170,10 @@ NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 
 
   [참고링크1](https://soobing.github.io/react/server-rendering-and-react-query/),
   [참고링크2](https://soobing.github.io/react/next-app-router-react-query/)
+
+  - 서버 사이드 API 로직 정리
+  - 클라이언트 사이드 API 로직 정리 (React Query 사용)
+    - 설치
+      ```bash
+      yarn add @tanstack/react-query
+      ```
