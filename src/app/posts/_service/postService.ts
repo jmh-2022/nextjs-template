@@ -1,5 +1,4 @@
-import { callFetchGet, callFetchPost } from '@/service/apiClient';
-import { CommonRes } from '@/types/commonResponse';
+import { callFetchGet } from '@/service/apiClient';
 
 const POSTS = `/posts`;
 

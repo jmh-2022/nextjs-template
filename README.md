@@ -166,14 +166,119 @@ NEXT JS를 사용하는 경우, ESLINT 는 자동으로 설정 되어 있지만 
 
 ### 99. API 호출 로직 정리
 
-- 서버사이드 렌더링 시 조회 되었던 값을 클라이언트 사이드에서도 사용하기 위해 사용한다.
+- 필요 라이브러리: react-query
 
   [참고링크1](https://soobing.github.io/react/server-rendering-and-react-query/),
   [참고링크2](https://soobing.github.io/react/next-app-router-react-query/)
 
-  - 서버 사이드 API 로직 정리
+  - 서버 사이드 API 호출 로직 정리
+
+    - 참고용 개발 순서 (참고: [postService.ts](/src/app/posts/_service/postService.ts))
+
+      1. 서비스 함수 생성
+      2. api에서 리턴해주는 타입 인터페이스 생성
+      3. api enpoint 생성
+      4. service 함수 생성
+
+    - 소스
+
+    ```typescript
+    // 서버 호출 로직 src/app/posts/page.tsx 참고
+
+
+    import React from 'react';
+    import { getPosts } from './_service/postService';
+    import { DivColumn, DivRow, MainColumn } from '@/components/atoms';
+    import { Body1Regular, Title1Regular } from '@/components/atoms/Texts';
+    import Button from '@/components/atoms/Button';
+    import Link from 'next/link';
+    import LineChart from '@/components/LineChart';
+
+    export default async function page() {
+      // 데이터 호출 로직
+      const data = await getPosts();
+
+      return (
+        <MainColumn className="p-4 gap-3">
+          <DivRow className="gap-4">
+            <Button
+              variant={'grey'}
+              size={'md'}
+              label="서버"
+              className="text-black"
+            />
+            <Link href={'/posts/client'}>
+              <Button
+                variant={'grey'}
+                size={'md'}
+                label="클라이언트"
+                className="text-white"
+              />
+            </Link>
+          </DivRow>
+          {new Date().toString()}
+          <LineChart />
+          {data.map((v) => (
+            <DivColumn key={v.id} className="border-b gap-2 p-3">
+              <Title1Regular className="text-blue-400">{v.title}</Title1Regular>
+              <Body1Regular>{v.body}</Body1Regular>
+            </DivColumn>
+          ))}
+        </MainColumn>
+      );
+    }
+
+
+    ```
+
   - 클라이언트 사이드 API 로직 정리 (React Query 사용)
-    - 설치
-      ```bash
-      yarn add @tanstack/react-query
+
+    - 참고용
+    - 소스 (참고: [page.tsx](/src/app/posts/client/page.tsx))
+
+      ```typescript
+      'use client';
+
+      import { useQuery } from '@tanstack/react-query';
+      import React from 'react';
+      import { getPosts } from '../_service/postService';
+      import { MainColumn, DivColumn, DivRow } from '@/components/atoms';
+      import { Title1Regular, Body1Regular } from '@/components/atoms/Texts';
+      import Button from '@/components/atoms/Button';
+      import { useRouter } from 'next/navigation';
+
+      export default function ClientPage() {
+        const { data } = useQuery({ queryKey: ['posts'], queryFn: getPosts });
+        const { push } = useRouter();
+
+        return (
+          <MainColumn className="p-4">
+            <DivRow className="gap-4">
+              <Button
+                variant={'grey'}
+                size={'md'}
+                label="서버"
+                className="text-white"
+                onClick={() => push('/posts')}
+              />
+              <Button
+                variant={'grey'}
+                size={'md'}
+                label="클라이언트"
+                className="text-black"
+                onClick={() => push('/posts/client')}
+              />
+            </DivRow>
+
+            {data &&
+              data.map((v) => (
+                <DivColumn key={v.id} className="border-b gap-2 p-3">
+                  <Title1Regular className="text-blue-400">{v.title}</Title1Regular>
+                  <Body1Regular>{v.body}</Body1Regular>
+                </DivColumn>
+              ))}
+          </MainColumn>
+        );
+      }
+
       ```

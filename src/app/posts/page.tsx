@@ -10,7 +10,7 @@ export default async function page() {
   const data = await getPosts();
 
   return (
-    <MainColumn className="p-4">
+    <MainColumn className="p-4 gap-3">
       <DivRow className="gap-4">
         <Button
           variant={'grey'}
@@ -27,6 +27,7 @@ export default async function page() {
           />
         </Link>
       </DivRow>
+      {new Date().toString()}
       <LineChart />
       {data.map((v) => (
         <DivColumn key={v.id} className="border-b gap-2 p-3">
