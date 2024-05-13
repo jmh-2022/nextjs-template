@@ -1,4 +1,3 @@
-import { CommonRes } from '@/types/commonResponse';
 import {
   isTimestampExpired,
   isWindowObjectAvailable,

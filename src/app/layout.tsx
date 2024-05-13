@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import QueryProvider from '@/components/QueryProvider';
+import QueryProvider from '@/components/templates/RecoilWithQueryProvider';
+import RecoilWithQueryProvider from '@/components/templates/RecoilWithQueryProvider';
+import ModalManager from '@/components/modal/ModalManager';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -41,7 +43,10 @@ export default function RootLayout({
       <body
         className={`flex flex-col overflow-y-auto w-full max-w-screen-md mx-auto h-screen ${inter.className}`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <RecoilWithQueryProvider>
+          {children}
+          <ModalManager />
+        </RecoilWithQueryProvider>
       </body>
     </html>
   );

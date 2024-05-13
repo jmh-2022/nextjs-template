@@ -7,6 +7,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import React, { ReactNode } from 'react';
+import { RecoilRoot } from 'recoil';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,8 +33,11 @@ type Props = {
   children: ReactNode;
 };
 
-export default function QueryProvider({ children }: Props) {
+export default function RecoilWithQueryProvider({ children }: Props) {
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    // Recoil이 애플리케이션의 상태를 관장하는 주된 라이브러리로서, 전체 앱을 포괄하는 것이 자연스럽다.. React Query는 데이터 페칭을 최적화하는 데 초점을 맞추고 있고, 상태 관리의 주체인 Recoil이 더 넓은 범위를 가지는 것이 적합
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </RecoilRoot>
   );
 }

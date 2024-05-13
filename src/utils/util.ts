@@ -3,6 +3,7 @@
 // import { JWTDecodeInfo } from '@/types/next-auth';
 import { JWTDecodeInfo } from '@/types/commonResponse';
 import { NextResponse } from 'next/server';
+import React, { ReactNode, ReactElement } from 'react';
 
 export function customLog(message?: any, ...optionalParams: any[]): void {
   if (process.env.NODE_ENV === 'development') {
@@ -367,3 +368,49 @@ export function setCookie(
     expires: new Date(expires),
   });
 }
+
+export function shallowCompareNodes(
+  node1: ReactNode,
+  node2: ReactNode,
+): boolean {
+  // 둘 다 React 요소인 경우
+  if (React.isValidElement(node1) && React.isValidElement(node2)) {
+    if (node1.type !== node2.type) {
+      return false;
+    }
+    const props1 = (node1 as ReactElement).props;
+    const props2 = (node2 as ReactElement).props;
+    const keys1 = Object.keys(props1);
+    const keys2 = Object.keys(props2);
+
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+
+    for (const key of keys1) {
+      if (props1[key] !== props2[key]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // 둘 다 배열인 경우
+  if (Array.isArray(node1) && Array.isArray(node2)) {
+    if (node1.length !== node2.length) {
+      return false;
+    }
+    for (let i = 0; i < node1.length; i++) {
+      if (!shallowCompareNodes(node1[i], node2[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // 기본 타입 비교 (문자열, 숫자 등)
+  return node1 === node2;
+}
+
+export default shallowCompareNodes;

@@ -1,29 +1,21 @@
-import { MainColumn, DivRow, DivColumn } from '@/components/atoms';
-import Button from '@/components/atoms/Button';
+'use client';
 
-import Link from 'next/link';
+import useModals from '@/components/modal/hooks/useModals';
+import { OverlayCenter } from '@/components/molecules/OverlayCenter';
+import ModalAlert from '@/components/organisms/ModalAlert';
+import HeaderBody from '@/components/templates/HeaderBody';
 
 export default function Home() {
+  const { openModal } = useModals();
+  const handleClick = () => {
+    openModal({
+      ModalWrapper: OverlayCenter,
+      children: <ModalAlert content={'크크크크'} />,
+    });
+  };
   return (
-    <MainColumn className="p-4">
-      <DivRow className="gap-4">
-        <Link href={'/posts'}>
-          <Button
-            variant={'grey'}
-            size={'md'}
-            label="서버"
-            className="text-white"
-          />
-        </Link>
-        <Link href={'/posts/client'}>
-          <Button
-            variant={'grey'}
-            size={'md'}
-            label="클라이언트"
-            className="text-white"
-          />
-        </Link>
-      </DivRow>
-    </MainColumn>
+    <HeaderBody>
+      <>크크</>
+    </HeaderBody>
   );
 }
