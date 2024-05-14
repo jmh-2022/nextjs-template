@@ -8,7 +8,7 @@ import HeaderBody from '@/components/templates/HeaderBody';
 import { CommonRes } from '@/types/commonResponse';
 import LineChart2 from '@/components/LineChart2';
 
-type TRate = {
+export type TRate = {
   rate: number;
   trdDd: string;
   clsPrc: string;
@@ -16,9 +16,13 @@ type TRate = {
 
 async function loadData() {
   try {
+    // console.time('response_max.json');
     const response = await fetch(
+      // 'http://localhost:3030/json/response_max.json',
+      // 'http://192.168.1.9:9090/i-routine/api/v1/etf/069660/rate-return-history?chartRangeTypeCode=MAX',
       'http://localhost:3030/json/response_1715564554552.json',
     );
+    // console.timeEnd('response_max.json');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -33,22 +37,12 @@ export default async function page() {
   const data = await getPosts();
   const rateList = await loadData();
 
-  let maxValue = 0;
-  let minValue = 0;
-  if (rateList && rateList.data?.length) {
-    maxValue = Math.max(...rateList.data.map((v) => v.rate));
-    minValue = Math.min(...rateList.data.map((v) => v.rate));
-  }
-
-  console.log('minValue :: ', minValue);
-  console.log('maxValue :: ', maxValue);
-
   return (
     <HeaderBody>
       <>
         {new Date().toString()}
-        <LineChart />
-        {/* <LineChart2 /> */}
+        {rateList && <LineChart2 chartData={rateList?.data} />}
+
         {data.map((v) => (
           <DivColumn key={v.id} className="border-b gap-2 p-3">
             <Title1Regular className="text-blue-400">{v.title}</Title1Regular>

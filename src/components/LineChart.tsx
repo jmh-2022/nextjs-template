@@ -1,11 +1,10 @@
 'use client';
 
+import { TRate } from '@/app/posts/page';
 import React, { useRef, useEffect, useState } from 'react';
 
 const XAXIS_PADDING = 10;
 const YAXIS_PADDING = 25;
-const MAX_VALUE = 100;
-const Y_TICK_COUNT = 5;
 const Y_TICK_COUNT_MAX = 7;
 const X_TICK_COUNT = 5;
 const TOP_PADDING = 15;
@@ -17,15 +16,29 @@ interface CanvasSize {
   height: number;
 }
 
-const drawChart = (
-  ctx: CanvasRenderingContext2D,
-  canvasWidth: number,
-  canvasHeight: number,
-  chartWidth: number,
-  chartHeight: number,
-) => {
-  const maxRatio: number = 93.7;
-  const minRatio: number = -11.3;
+type TDrawChart = {
+  ctx: CanvasRenderingContext2D;
+  canvasWidth: number;
+  canvasHeight: number;
+  chartWidth: number;
+  chartHeight: number;
+  maxRatio: number;
+  minRatio: number;
+  sampleData: number[];
+};
+// const sampleData = [0, -1, 0, -3, 0, 0, 5, 8, -5]; // 샘플 데이터 포인트
+const drawChart = ({
+  canvasHeight,
+  canvasWidth,
+  chartHeight,
+  chartWidth,
+  ctx,
+  maxRatio,
+  minRatio,
+  sampleData,
+}: TDrawChart) => {
+  // const maxRatio: number = 10;
+  // const minRatio: number = -10;
   // const maxRatio: number = 120;
   // const minRatio: number = 0;
   const { maxValue, minValue, shouldRetry, tickCount, yScale } =
@@ -47,7 +60,7 @@ const drawChart = (
   ctx.strokeStyle = '#000'; // 선의 색상
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
-  ctx.moveTo(YAXIS_PADDING + chartWidth, canvasHeight - TOP_PADDING);
+
   // 아래에서 위로 그려올라간다.
   for (let i = 0; i <= tickCount; i++) {
     const absoluteValue = i * yScale;
@@ -60,8 +73,8 @@ const drawChart = (
       (absoluteValue / (maxValue - minValue)) * (chartHeight - TOP_PADDING);
 
     // X축 가로선 차트가 올바르게 그려졌는지 확인하기 위하여 사용.
-    ctx.moveTo(YAXIS_PADDING, yPoint);
-    ctx.lineTo(chartWidth, yPoint);
+    // ctx.moveTo(YAXIS_PADDING, yPoint);
+    // ctx.lineTo(chartWidth, yPoint);
     ctx.fillText(displayValue.toString(), chartWidth + 20, yPoint);
   }
   ctx.stroke();
@@ -96,8 +109,6 @@ const drawChart = (
   ctx.lineWidth = 2;
   ctx.beginPath();
 
-  const sampleData = [0, -15, 0, -10, 5, 25, 5, 45, 5, 65, 5, 85, 5, 105, 5]; // 샘플 데이터 포인트
-
   sampleData.forEach((point, index) => {
     const x =
       YAXIS_PADDING +
@@ -119,7 +130,9 @@ const drawChart = (
   ctx.stroke();
 };
 
-const LineChart: React.FC = () => {
+const LineChart = ({ chartData }: { chartData: TRate[] }) => {
+  // console.log(chartData);
+
   const canvasAreaRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState<CanvasSize>({
@@ -179,10 +192,28 @@ const LineChart: React.FC = () => {
         canvas.style.width = `${width}px`;
         canvas.style.height = `${height}px`;
         ctx.scale(dpr, dpr);
-        drawChart(ctx, width, height, chartWidth, chartHeight);
+
+        let maxRatio = 0;
+        let minRatio = 0;
+
+        console.time('myFunction');
+        maxRatio = Math.max(...chartData.map((v) => v.rate));
+        minRatio = Math.min(...chartData.map((v) => v.rate));
+
+        drawChart({
+          ctx,
+          canvasWidth: width,
+          canvasHeight: height,
+          chartWidth,
+          chartHeight,
+          maxRatio,
+          minRatio,
+          sampleData: chartData.map((v) => v.rate),
+        });
+        console.timeEnd('myFunction');
       }
     }
-  }, [canvasSize]);
+  }, [canvasSize, chartData]);
 
   return (
     <figure ref={canvasAreaRef} className="w-full flex h-56">
