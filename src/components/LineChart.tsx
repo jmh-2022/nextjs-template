@@ -60,8 +60,8 @@ const drawChart = (
       (absoluteValue / (maxValue - minValue)) * (chartHeight - TOP_PADDING);
 
     // X축 가로선 차트가 올바르게 그려졌는지 확인하기 위하여 사용.
-    // ctx.moveTo(YAXIS_PADDING, yPoint);
-    // ctx.lineTo(chartWidth, yPoint);
+    ctx.moveTo(YAXIS_PADDING, yPoint);
+    ctx.lineTo(chartWidth, yPoint);
     ctx.fillText(displayValue.toString(), chartWidth + 20, yPoint);
   }
   ctx.stroke();
