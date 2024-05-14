@@ -24,10 +24,8 @@ const drawChart = (
   chartWidth: number,
   chartHeight: number,
 ) => {
-  const maxRatio: number = 93.7;
-  const minRatio: number = -11.3;
-  // const maxRatio: number = 120;
-  // const minRatio: number = 0;
+  const maxRatio: number = 105;
+  const minRatio: number = -15;
   const { maxValue, minValue, shouldRetry, tickCount, yScale } =
     adjustGraphScale(maxRatio, minRatio);
 
@@ -35,11 +33,6 @@ const drawChart = (
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   // 그리기 시작
   ctx.beginPath();
-  // (0,0) => (25, 25) 이동
-
-  // const yInterval = MAX_VALUE / (Y_TICK_COUNT - 1);
-  // const yInterval = maxValue / (tickCount - 1);
-  // console.log(yInterval);
 
   // 선 스타일 조정
   ctx.lineWidth = 0.5; // 선의 두께
@@ -47,26 +40,25 @@ const drawChart = (
   ctx.strokeStyle = '#000'; // 선의 색상
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
-  ctx.moveTo(YAXIS_PADDING + chartWidth, canvasHeight - TOP_PADDING);
+
   // 아래에서 위로 그려올라간다.
   for (let i = 0; i <= tickCount; i++) {
     const absoluteValue = i * yScale;
     const displayValue = absoluteValue + minValue;
-    // 패딩 포함 전체 높이에서 차트 비율 만큼 그린다
 
     const yPoint =
       TOP_PADDING +
       chartHeight -
-      (absoluteValue / (maxValue - minValue)) * (chartHeight - TOP_PADDING);
+      ((absoluteValue - minValue) / (maxValue - minValue)) * chartHeight;
 
-    // X축 가로선 차트가 올바르게 그려졌는지 확인하기 위하여 사용.
-    // ctx.moveTo(YAXIS_PADDING, yPoint);
-    // ctx.lineTo(chartWidth, yPoint);
+    // X축 가로선
+    ctx.moveTo(YAXIS_PADDING, yPoint);
+    ctx.lineTo(chartWidth, yPoint);
     ctx.fillText(displayValue.toString(), chartWidth + 20, yPoint);
   }
   ctx.stroke();
 
-  ctx.strokeStyle = 'blue'; // Red for the line chart
+  ctx.strokeStyle = 'blue';
   ctx.lineWidth = 0.5;
 
   ctx.beginPath();
@@ -74,39 +66,27 @@ const drawChart = (
   const zeroPoint =
     TOP_PADDING +
     chartHeight -
-    (zeroValue / (maxValue - minValue)) * (chartHeight - TOP_PADDING);
+    (zeroValue / (maxValue - minValue)) * chartHeight;
   ctx.moveTo(YAXIS_PADDING, zeroPoint);
   ctx.lineTo(chartWidth, zeroPoint);
   ctx.fillText('0', chartWidth + 20, zeroPoint);
   ctx.stroke();
 
-  // ctx.lineTo(chartWidth, chartHeight + TOP_PADDING);
-  // ctx.textBaseline = 'top';
-  // ctx.textAlign = 'center';
-  // const xInterval = maxValue / (X_TICK_COUNT - 1);
-
-  // for (let i = 0; i < X_TICK_COUNT; i++) {
-  //     const value = i * xInterval;
-  //     const xPoint = (value / maxValue) * chartWidth;
-  //     const firstPoint = i === 0 ? YAXIS_PADDING : 0;
-  //     ctx.fillText(value.toString(), xPoint + firstPoint, chartHeight + TOP_PADDING + 2);
-  // }
-
-  ctx.strokeStyle = 'red'; // Red for the line chart
+  ctx.strokeStyle = 'red';
   ctx.lineWidth = 2;
   ctx.beginPath();
 
-  const sampleData = [0, -15, 0, -10, 5, 25, 5, 45, 5, 65, 5, 85, 5, 105, 5]; // 샘플 데이터 포인트
+  const sampleData = [0, -15, 0, 40, 0, 60, 0, 80, 0, 105, 0]; // 샘플 데이터 포인트
 
   sampleData.forEach((point, index) => {
     const x =
       YAXIS_PADDING +
       index * ((chartWidth - YAXIS_PADDING) / (sampleData.length - 1));
+
     const y =
       TOP_PADDING +
       chartHeight -
-      ((point - minValue) / (maxValue - minValue)) *
-        (chartHeight - TOP_PADDING);
+      ((point - minValue) / (maxValue - minValue)) * chartHeight;
 
     // 시작 점만 0으로 이동한다.
     if (index === 0) {
@@ -119,7 +99,7 @@ const drawChart = (
   ctx.stroke();
 };
 
-const LineChart: React.FC = () => {
+const LineChart2: React.FC = () => {
   const canvasAreaRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState<CanvasSize>({
@@ -331,4 +311,4 @@ function calculateYAxis({
   };
 }
 
-export default LineChart;
+export default LineChart2;

@@ -25,9 +25,7 @@ const drawChart = (
   chartHeight: number,
 ) => {
   const maxRatio: number = 93.7;
-  const minRatio: number = -11.3;
-  // const maxRatio: number = 120;
-  // const minRatio: number = 0;
+  const minRatio: number = -11.36;
   const { maxValue, minValue, shouldRetry, tickCount, yScale } =
     adjustGraphScale(maxRatio, minRatio);
 
@@ -47,8 +45,7 @@ const drawChart = (
   ctx.strokeStyle = '#000'; // 선의 색상
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
-  ctx.moveTo(YAXIS_PADDING + chartWidth, canvasHeight - TOP_PADDING);
-  // 아래에서 위로 그려올라간다.
+
   for (let i = 0; i <= tickCount; i++) {
     const absoluteValue = i * yScale;
     const displayValue = absoluteValue + minValue;
@@ -57,11 +54,10 @@ const drawChart = (
     const yPoint =
       TOP_PADDING +
       chartHeight -
-      (absoluteValue / (maxValue - minValue)) * (chartHeight - TOP_PADDING);
+      (absoluteValue / maxValue) * (chartHeight - TOP_PADDING);
 
-    // X축 가로선 차트가 올바르게 그려졌는지 확인하기 위하여 사용.
-    // ctx.moveTo(YAXIS_PADDING, yPoint);
-    // ctx.lineTo(chartWidth, yPoint);
+    ctx.moveTo(YAXIS_PADDING, yPoint);
+    ctx.lineTo(chartWidth, yPoint);
     ctx.fillText(displayValue.toString(), chartWidth + 20, yPoint);
   }
   ctx.stroke();
@@ -74,7 +70,7 @@ const drawChart = (
   const zeroPoint =
     TOP_PADDING +
     chartHeight -
-    (zeroValue / (maxValue - minValue)) * (chartHeight - TOP_PADDING);
+    (zeroValue / maxValue) * (chartHeight - TOP_PADDING);
   ctx.moveTo(YAXIS_PADDING, zeroPoint);
   ctx.lineTo(chartWidth, zeroPoint);
   ctx.fillText('0', chartWidth + 20, zeroPoint);
@@ -96,19 +92,12 @@ const drawChart = (
   ctx.lineWidth = 2;
   ctx.beginPath();
 
-  const sampleData = [0, -15, 0, -10, 5, 25, 5, 45, 5, 65, 5, 85, 5, 105, 5]; // 샘플 데이터 포인트
+  const sampleData = [10, 20, 55, 40, 80, 60, 90]; // 샘플 데이터 포인트
 
   sampleData.forEach((point, index) => {
     const x =
-      YAXIS_PADDING +
-      index * ((chartWidth - YAXIS_PADDING) / (sampleData.length - 1));
-    const y =
-      TOP_PADDING +
-      chartHeight -
-      ((point - minValue) / (maxValue - minValue)) *
-        (chartHeight - TOP_PADDING);
-
-    // 시작 점만 0으로 이동한다.
+      YAXIS_PADDING + index * ((chartWidth - 30) / (sampleData.length - 1));
+    const y = TOP_PADDING + chartHeight - (point / maxValue) * chartHeight;
     if (index === 0) {
       ctx.moveTo(x, y);
     } else {
@@ -119,7 +108,7 @@ const drawChart = (
   ctx.stroke();
 };
 
-const LineChart: React.FC = () => {
+export const LineChart: React.FC = () => {
   const canvasAreaRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState<CanvasSize>({
@@ -168,7 +157,6 @@ const LineChart: React.FC = () => {
         const chartWidth = width - YAXIS_PADDING;
         // 캔버스 높이 - x축 패딩 - top 패딩
         const chartHeight = height - XAXIS_PADDING - TOP_PADDING;
-        // 픽셀 배율 값
         const dpr = window.devicePixelRatio;
 
         // 캔버스 상의 그려질 필셀 수를 정의한다 정의 하지 않을 경우 선이 옅게 보이는 이슈가 발생한다.
@@ -249,7 +237,7 @@ function adjustGraphScale(maxRatio: number, minRatio: number) {
       minValue: adjustedMinValue,
       divideValue: INITIAL_DIVIDE_VALUE,
     });
-    console.log(yAxisConfiguration);
+
     // console.log(`Current Division Value: ${retryCounter * INITIAL_DIVIDE_VALUE}`, yAxisConfiguration);
     isAdjustmentComplete = !yAxisConfiguration.shouldRetry; // 재시도 필요 여부 확인
 
@@ -282,7 +270,7 @@ function calculateYAxis({
   maxValue: number;
   minValue: number;
   divideValue: number;
-}): TYAxisConfiguration {
+}) {
   let shouldRetry = true;
   let yScale = divideValue;
   let tickCount = calculateSumOfAbsolutes(maxValue, minValue) / divideValue;
@@ -290,7 +278,6 @@ function calculateYAxis({
   // MAX_TICK_COUNT 보다 클 때사용할 값
 
   // 소수점을 포함해야 하기 때문에 예를 들어 (Y_TICK_COUNT_MAX =7) 7.3 하위로 들어오면 포함이라 본다.
-  // tickCount가 Y_TICK_COUNT_MAX 보다 이하인 정수 값을 찾는다.
   if (tickCount < Y_TICK_COUNT_MAX + 1 && Number.isInteger(tickCount)) {
     shouldRetry = false;
   } else {
@@ -330,5 +317,3 @@ function calculateYAxis({
     yScale,
   };
 }
-
-export default LineChart;

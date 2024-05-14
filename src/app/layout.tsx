@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import QueryProvider from '@/components/templates/RecoilWithQueryProvider';
 import RecoilWithQueryProvider from '@/components/templates/RecoilWithQueryProvider';
 import ModalManager from '@/components/modal/ModalManager';
 
