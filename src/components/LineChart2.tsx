@@ -37,18 +37,23 @@ const drawChart = ({
   minRatio,
   sampleData,
 }: TDrawChart) => {
-  const { maxValue, minValue, shouldRetry, tickCount, yScale } =
-    adjustGraphScale(maxRatio, minRatio);
+  // 그래프의 최대 최소 값, y 기준축 개수, 나눔 값
+  const { maxValue, minValue, tickCount, yScale } = adjustGraphScale(
+    maxRatio,
+    minRatio,
+  );
 
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   ctx.beginPath();
-
+  ctx.setLineDash([]);
   ctx.lineWidth = 0.5;
   ctx.lineCap = 'round';
   ctx.strokeStyle = '#000';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
 
+  // Y축 그리기
+  // ctx.moveTo(YAXIS_PADDING, )
   for (let i = 0; i <= tickCount; i++) {
     const absoluteValue = i * yScale;
     const displayValue = absoluteValue + minValue;
@@ -119,12 +124,25 @@ const LineChart = ({ chartData }: { chartData: TRate[] }) => {
     setCanvasSize({ width: screenWidth, height: newHeight });
   };
 
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleClick = (
+    e:
+      | React.MouseEvent<HTMLCanvasElement>
+      | React.TouchEvent<HTMLCanvasElement>,
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    let x: number;
+    let y: number;
+    if ('clientY' in e) {
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    } else if ('touches' in e) {
+      x = e.touches[0].clientX - rect.left;
+      y = e.touches[0].clientY - rect.top;
+    } else {
+      throw new Error('등록되지 않은 디바이스입니다.');
+    }
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -165,7 +183,6 @@ const LineChart = ({ chartData }: { chartData: TRate[] }) => {
       chartHeight -
       ((chartData[index].rate - minValue) / (maxValue - minValue)) *
         (chartHeight - TOP_PADDING);
-    // debugger;
     ctx.beginPath();
     ctx.arc(closestX, closestY, 5, 0, 2 * Math.PI);
     ctx.fillStyle = 'blue';
@@ -224,13 +241,20 @@ const LineChart = ({ chartData }: { chartData: TRate[] }) => {
   }, [canvasSize, chartData]);
 
   return (
-    <figure ref={canvasAreaRef} className="w-full flex h-56">
-      <canvas ref={canvasRef} className="" onClick={handleClick} />
+    <figure ref={canvasAreaRef} className="w-full flex h-56 border">
+      <canvas
+        ref={canvasRef}
+        className=""
+        draggable
+        onClick={handleClick}
+        // onTouchStart={handleClick}
+        onTouchMove={handleClick}
+      />
       <figcaption className="hidden">화면에 드러납니까 ?</figcaption>
     </figure>
   );
 };
-
+// 음수일 때 반 내림 , 양수일 때 반올림
 function roundToNearestMultiple(value: number, roundingBase: number): number {
   if (roundingBase === 0) return value;
   if (value > 0) {
@@ -254,19 +278,26 @@ type TYAxisConfiguration = {
   tickCount: number;
   yScale: number;
 };
-
+// 그래프 Y축 범위값 조정함수
 function adjustGraphScale(maxRatio: number, minRatio: number) {
+  // Y축 그래프의 기준이 되는 최소 단위 5 할당
   let currentDivideValue = INITIAL_DIVIDE_VALUE;
+  // 반복문 조건 변수 y축 최상단 값을 계산하기 위해 사용한다.
   let isAdjustmentComplete = false;
+  // 무한루프 방지
   let retryCounter = 0;
+  // 응답값 변수
   let yAxisConfiguration: TYAxisConfiguration;
 
   do {
+    // 최대값 + (증가배수 * 나눌 값) ex] 93.7 + (0 * 5) => 93.7 + (1 * 5) 93.7 + (0 * 5) =>
     const stepwiseMaxRatio = maxRatio + retryCounter * INITIAL_DIVIDE_VALUE;
+    // 최대값 배수 맞추기
     const adjustedMaxValue = roundToNearestMultiple(
       stepwiseMaxRatio,
       INITIAL_DIVIDE_VALUE,
     );
+    // 최소값 배수 맞추기
     const adjustedMinValue = roundToNearestMultiple(
       minRatio,
       INITIAL_DIVIDE_VALUE,
@@ -298,6 +329,12 @@ function adjustGraphScale(maxRatio: number, minRatio: number) {
   };
 }
 
+/**
+ * maxValue와 minValue를 절대값으로 sum 하여
+ * divideValue로 나눴을 때 정수이며, Y_TICK_COUNT_MAX 작은 값을 찾아 리턴한다.
+ * @param maxValue, minValue, divideValue
+ * @returns maxValue, minValue, shouldRetry, tickCount, yScale
+ */
 function calculateYAxis({
   maxValue,
   minValue,
