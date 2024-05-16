@@ -5,7 +5,7 @@ import { Body1Regular, Title1Regular } from '@/components/atoms/Texts';
 
 import HeaderBody from '@/components/templates/HeaderBody';
 import { CommonRes } from '@/types/commonResponse';
-import LineChart2 from '@/components/LineChart2';
+import LineChart from '@/components/Chart';
 
 export type TRate = {
   rate: number;
@@ -18,8 +18,8 @@ async function loadData() {
     // console.time('response_max.json');
     const response = await fetch(
       // 'http://localhost:3030/json/response_max.json',
-      // 'http://192.168.1.9:9090/i-routine/api/v1/etf/069660/rate-return-history?chartRangeTypeCode=MAX',
-      'http://localhost:3030/json/response_1715564554552.json',
+      'http://192.168.1.9:9090/i-routine/api/v1/etf/069660/rate-return-history?chartRangeTypeCode=MAX',
+      // 'http://localhost:3030/json/response_1715564554552.json',
     );
     // console.timeEnd('response_max.json');
     if (!response.ok) {
@@ -41,7 +41,7 @@ export default async function page() {
       <DivColumn className="gap-3 px-4">
         {new Date().toString()}
         <p>1. 차트</p>
-        {rateList && <LineChart2 chartData={rateList?.data} />}
+        {rateList && <LineChart chartData={rateList?.data} />}
         {data.map((v) => (
           <DivColumn key={v.id} className="border-b gap-2 p-3">
             <Title1Regular className="text-blue-400">{v.title}</Title1Regular>
