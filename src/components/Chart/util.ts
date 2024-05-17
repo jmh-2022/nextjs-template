@@ -1,5 +1,8 @@
+import { TRate } from '@/app/charts/page';
+import { TLineChartData } from './LineChartTest';
+
 export type TYAxisConfiguration = {
-  shouldRetry: boolean;
+  shouldRetry?: boolean;
   maxValue: number;
   minValue: number;
   tickCount: number;
@@ -138,6 +141,55 @@ export function adjustGraphScale(maxRatio: number, minRatio: number) {
   } while (!isAdjustmentComplete);
 
   return {
-    ...yAxisConfiguration,
+    maxValue: yAxisConfiguration.maxValue,
+    minValue: yAxisConfiguration.minValue,
+    tickCount: yAxisConfiguration.tickCount,
+    yScale: yAxisConfiguration.yScale,
   };
+}
+export function adjustPriceGraphScale(maxPrice: number, minPrice: number) {
+  const maxMinusMin = maxPrice - minPrice;
+  const yScale = Math.floor(maxMinusMin / 4 / 10) * 10;
+  const minValue = minPrice - yScale;
+  const maxValue = minValue + yScale * 6;
+
+  return {
+    maxValue,
+    minValue,
+    yScale,
+    tickCount: 6,
+  };
+}
+
+export type TCanvasSize = {
+  canvasWidth: number;
+  canvasHeight: number;
+  chartWidth: number;
+  chartHeight: number;
+};
+
+export function getYAxisConfig(chartData: TRate[], type: 'price' | 'rate') {
+  if (type === 'rate') {
+    const maxRatio = Math.max(...chartData.map((v) => v.rate));
+    const minRatio = Math.min(...chartData.map((v) => v.rate));
+
+    return adjustGraphScale(maxRatio, minRatio);
+  } else {
+    const maxPrice = Math.max(...chartData.map((v) => Number(v.clsPrc)));
+    const minPrice = Math.min(...chartData.map((v) => Number(v.clsPrc)));
+
+    return adjustPriceGraphScale(maxPrice, minPrice);
+  }
+}
+
+export function getYAxisConfig2(
+  chartData: TLineChartData[],
+  type: 'price' | 'rate',
+) {
+  const maxValue = Math.max(...chartData.map((v) => v.value));
+  const minValue = Math.min(...chartData.map((v) => v.value));
+
+  return type === 'rate'
+    ? adjustGraphScale(maxValue, minValue)
+    : adjustPriceGraphScale(maxValue, minValue);
 }

@@ -5,13 +5,10 @@ import { Body1Regular, Title1Regular } from '@/components/atoms/Texts';
 
 import HeaderBody from '@/components/templates/HeaderBody';
 import { CommonRes } from '@/types/commonResponse';
-import LineChart from '@/components/Chart';
 
-export type TRate = {
-  rate: number;
-  trdDd: string;
-  clsPrc: string;
-};
+import { getYAxisConfig } from '@/components/Chart/util';
+import LineChart from '@/components/Chart';
+import { TRate } from '../charts/page';
 
 async function loadData() {
   try {
@@ -35,13 +32,17 @@ async function loadData() {
 export default async function page() {
   const data = await getPosts();
   const rateList = await loadData();
+  if (rateList?.data) {
+    const yAxisConfg = getYAxisConfig(rateList.data, 'price');
+  }
 
   return (
     <HeaderBody>
       <DivColumn className="gap-3 px-4">
         {new Date().toString()}
-        <p>1. 차트</p>
+        <p>1. 차트 수익률</p>
         {rateList && <LineChart chartData={rateList?.data} />}
+
         {data.map((v) => (
           <DivColumn key={v.id} className="border-b gap-2 p-3">
             <Title1Regular className="text-blue-400">{v.title}</Title1Regular>

@@ -63,30 +63,6 @@ type TDrawChartEvent = {
   chartData: TRate[];
 };
 
-function drawZeroLine({
-  ctx,
-  maxValue,
-  minValue,
-  chartHeight,
-  chartWidth,
-}: {
-  ctx: CanvasRenderingContext2D;
-  minValue: number;
-  maxValue: number;
-  chartHeight: number;
-  chartWidth: number;
-}) {
-  ctx.strokeStyle = '#C7C7CC';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  const zeroValue = Math.abs(minValue);
-  const zeroPoint =
-    chartHeight - (zeroValue / (maxValue - minValue)) * chartHeight;
-  ctx.moveTo(0, zeroPoint + TOP_PADDING);
-  ctx.lineTo(chartWidth, zeroPoint + TOP_PADDING);
-  ctx.stroke();
-}
-
 const drawLineChart = ({
   canvasHeight,
   canvasWidth,
@@ -142,16 +118,7 @@ const drawLineChart = ({
     const yPoint =
       chartHeight - (absoluteValue / (maxValue - minValue)) * chartHeight;
 
-    if (displayValue === 0) {
-      isZeroInclude = true;
-      drawZeroLine({ ctx, chartHeight, chartWidth, maxValue, minValue });
-    }
-
     ctx.fillText(displayValue.toString(), canvasWidth, yPoint + TOP_PADDING);
-  }
-
-  if (!isZeroInclude) {
-    drawZeroLine({ ctx, chartHeight, chartWidth, maxValue, minValue });
   }
 
   ctx.beginPath();
@@ -184,7 +151,7 @@ const drawPointAndLines = ({
   const { chartHeight, chartWidth, canvasWidth, canvasHeight } = canvasSize;
   if (x < 0 || x > chartWidth) return;
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  const yConfig = getYAxisConfig(chartData, 'rate');
+  const yConfig = getYAxisConfig(chartData, 'price');
 
   drawLineChart({
     ctx,
@@ -192,7 +159,7 @@ const drawPointAndLines = ({
     canvasHeight: canvasHeight,
     chartWidth,
     chartHeight,
-    yAxisValueList: chartData.map((v) => v.rate),
+    yAxisValueList: chartData.map((v) => Number(v.clsPrc)),
     yConfig,
   });
 
@@ -205,7 +172,7 @@ const drawPointAndLines = ({
   const closestX = index * widthScale;
   const closestY =
     chartHeight -
-    ((chartData[index].rate - yConfig.minValue) /
+    ((Number(chartData[index].clsPrc) - yConfig.minValue) /
       (yConfig.maxValue - yConfig.minValue)) *
       chartHeight;
   ctx.beginPath();
@@ -234,7 +201,7 @@ const drawPointAndLines = ({
   ctx.textAlign = 'right';
 
   ctx.fillText(
-    chartData[index].rate.toString(),
+    chartData[index].clsPrc.toString(),
     canvasWidth,
     closestY + TOP_PADDING,
   );
@@ -243,10 +210,7 @@ const drawPointAndLines = ({
   // 금액 또는 수익률
 };
 
-// yAxisList 값,
-// xAxisList 값,
-
-const LineChart = ({ chartData }: { chartData: TRateWithDividend[] }) => {
+const LineChartPrice = ({ chartData }: { chartData: TRateWithDividend[] }) => {
   const canvasAreaRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -314,7 +278,7 @@ const LineChart = ({ chartData }: { chartData: TRateWithDividend[] }) => {
         canvas.style.width = `${canvasWidth}px`;
         canvas.style.height = `${canvasHeight}px`;
         ctx.scale(dpr, dpr);
-        const yConfig = getYAxisConfig(chartData, 'rate');
+        const yConfig = getYAxisConfig(chartData, 'price');
 
         drawLineChart({
           ctx,
@@ -322,7 +286,7 @@ const LineChart = ({ chartData }: { chartData: TRateWithDividend[] }) => {
           canvasHeight,
           chartWidth,
           chartHeight,
-          yAxisValueList: chartData.map((v) => v.rate),
+          yAxisValueList: chartData.map((v) => Number(v.clsPrc)),
           yConfig,
         });
       }
@@ -344,4 +308,4 @@ const LineChart = ({ chartData }: { chartData: TRateWithDividend[] }) => {
   );
 };
 
-export default LineChart;
+export default LineChartPrice;

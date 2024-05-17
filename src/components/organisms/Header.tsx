@@ -35,11 +35,20 @@ export default function Header() {
             className="text-white"
           />
         </Link>
+
         <Link href={'/posts/client'}>
           <Button
             variant={'grey'}
             size={'md'}
             label="클라이언트"
+            className="text-white"
+          />
+        </Link>
+        <Link href={'/charts'}>
+          <Button
+            variant={'grey'}
+            size={'md'}
+            label="차트"
             className="text-white"
           />
         </Link>
@@ -49,13 +58,6 @@ export default function Header() {
           label="알럿"
           onClick={handleClick}
           className="text-white"
-        />
-        <Button
-          variant={'default'}
-          size={'md'}
-          label="컨펌"
-          className="text-blakc"
-          onClick={handleClick}
         />
       </DivRow>
     </MainColumn>
