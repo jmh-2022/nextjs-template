@@ -1,66 +1,20 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
+
 import {
-  TCanvasSize,
+  TDrawChart,
+  TDrawChartEvent,
+  TLineChartData,
   TOP_PADDING,
   TYAxisConfiguration,
   XAXIS_PADDING,
-  YAXIS_PADDING,
-  getYAxisConfig,
-} from './util';
-import { TRate, TRateWithDividend } from '@/app/charts/page';
+} from '.';
+import { useChartInfo } from './hooks';
 
-type TCanvasAreaWH = {
-  screenWidth: number;
-  calculatedHeight: number;
-};
-
-type TUseCanvasSize = {
-  canvasSize: TCanvasSize;
-  setCanvas: (req: TCanvasAreaWH) => void;
-};
-
-export const useChartInfo = (): TUseCanvasSize => {
-  const [canvasSize, setCanvasSize] = useState<TCanvasSize>({
-    canvasWidth: 0,
-    canvasHeight: 0,
-    chartWidth: 0,
-    chartHeight: 0,
-  });
-
-  const setCanvas = useCallback(
-    ({ screenWidth, calculatedHeight }: TCanvasAreaWH) => {
-      const chartWidth = screenWidth - YAXIS_PADDING;
-      const chartHeight = calculatedHeight - XAXIS_PADDING - TOP_PADDING;
-      setCanvasSize({
-        canvasWidth: screenWidth,
-        canvasHeight: calculatedHeight,
-        chartWidth,
-        chartHeight,
-      });
-    },
-    [],
-  );
-
-  return {
-    canvasSize,
-    setCanvas,
-  };
-};
-
-type TDrawChart = TCanvasSize & {
-  ctx: CanvasRenderingContext2D;
-  yAxisValueList: number[];
+type LineChartProps = {
   yConfig: TYAxisConfiguration;
-};
-
-type TDrawChartEvent = {
-  ctx: CanvasRenderingContext2D;
-  x: number;
-  y: number;
-  canvasSize: TCanvasSize;
-  chartData: TRate[];
+  dataList: TLineChartData[];
 };
 
 const drawLineChart = ({
@@ -146,12 +100,12 @@ const drawPointAndLines = ({
   y,
   ctx,
   canvasSize,
-  chartData,
+  dataList,
+  yConfig,
 }: TDrawChartEvent) => {
   const { chartHeight, chartWidth, canvasWidth, canvasHeight } = canvasSize;
   if (x < 0 || x > chartWidth) return;
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  const yConfig = getYAxisConfig(chartData, 'price');
 
   drawLineChart({
     ctx,
@@ -159,12 +113,12 @@ const drawPointAndLines = ({
     canvasHeight: canvasHeight,
     chartWidth,
     chartHeight,
-    yAxisValueList: chartData.map((v) => Number(v.clsPrc)),
+    yAxisValueList: dataList.map((v) => Number(v.value)),
     yConfig,
   });
 
   // 차트의 (전체 width) / (그려진 차트 개수) = 차트 범위
-  const widthScale = chartWidth / (chartData.length - 1);
+  const widthScale = chartWidth / (dataList.length - 1);
   // 선택된 위치 / 차트 범위 = 몇 번재 범위에 있는 지 나옴 (index);
   const index = Math.round(x / widthScale);
 
@@ -172,7 +126,7 @@ const drawPointAndLines = ({
   const closestX = index * widthScale;
   const closestY =
     chartHeight -
-    ((Number(chartData[index].clsPrc) - yConfig.minValue) /
+    ((Number(dataList[index].value) - yConfig.minValue) /
       (yConfig.maxValue - yConfig.minValue)) *
       chartHeight;
   ctx.beginPath();
@@ -191,7 +145,7 @@ const drawPointAndLines = ({
   ctx.textBaseline = 'top';
   // 날짜
   ctx.fillText(
-    chartData[index].trdDd.toString(),
+    dataList[index].label.toString(),
     closestX,
     canvasHeight - XAXIS_PADDING + 5,
   );
@@ -201,7 +155,7 @@ const drawPointAndLines = ({
   ctx.textAlign = 'right';
 
   ctx.fillText(
-    chartData[index].clsPrc.toString(),
+    dataList[index].value.toString(),
     canvasWidth,
     closestY + TOP_PADDING,
   );
@@ -210,7 +164,7 @@ const drawPointAndLines = ({
   // 금액 또는 수익률
 };
 
-const LineChartPrice = ({ chartData }: { chartData: TRateWithDividend[] }) => {
+const BasicLineChart = ({ dataList, yConfig }: LineChartProps) => {
   const canvasAreaRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -250,7 +204,7 @@ const LineChartPrice = ({ chartData }: { chartData: TRateWithDividend[] }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    drawPointAndLines({ ctx, x, y, canvasSize, chartData });
+    drawPointAndLines({ ctx, x, y, canvasSize, dataList, yConfig });
   };
 
   useEffect(() => {
@@ -278,7 +232,6 @@ const LineChartPrice = ({ chartData }: { chartData: TRateWithDividend[] }) => {
         canvas.style.width = `${canvasWidth}px`;
         canvas.style.height = `${canvasHeight}px`;
         ctx.scale(dpr, dpr);
-        const yConfig = getYAxisConfig(chartData, 'price');
 
         drawLineChart({
           ctx,
@@ -286,12 +239,12 @@ const LineChartPrice = ({ chartData }: { chartData: TRateWithDividend[] }) => {
           canvasHeight,
           chartWidth,
           chartHeight,
-          yAxisValueList: chartData.map((v) => Number(v.clsPrc)),
+          yAxisValueList: dataList.map((v) => Number(v.value)),
           yConfig,
         });
       }
     }
-  }, [canvasSize, chartData]);
+  }, [canvasSize, dataList, yConfig]);
 
   return (
     <figure ref={canvasAreaRef} className="w-full flex">
@@ -308,4 +261,4 @@ const LineChartPrice = ({ chartData }: { chartData: TRateWithDividend[] }) => {
   );
 };
 
-export default LineChartPrice;
+export default BasicLineChart;
