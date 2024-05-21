@@ -133,14 +133,15 @@ export default async function page() {
     <HeaderBody>
       <DivColumn className="gap-3 px-4">
         {new Date().toString()}
-        {/* <p>1. 차트 수익률</p>
-        {dividendList && <RateLineChart />}
-        <p>2. 차트 금액</p>
-        {dividendList && <PriceLineChart />} */}
+
         <p>3. 차트 분배금 포함 금액 차트</p>
         {dividendList && <DividendPriceLineChart />}
         <p>4. 차트 분배금 포함 수익률 차트</p>
         {dividendList && <DividendRateLineChart />}
+        <p>1. 차트 수익률</p>
+        {dividendList && <RateLineChart />}
+        <p>2. 차트 금액</p>
+        {dividendList && <PriceLineChart />}
       </DivColumn>
     </HeaderBody>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 
 import {
   TDrawChart,
@@ -63,6 +63,7 @@ const drawLineChart = ({
   ctx.stroke();
   // 차트 border !!
 
+  // TODO: 껍데기 그리는거랑 차트 그리는 기능을 나눠 보자
   for (let i = 0; i <= tickCount; i++) {
     // 절대 값 Y축 기준 그리기 위해 사용
     const absoluteValue = i * yScale;
@@ -165,21 +166,8 @@ const drawPointAndLines = ({
 };
 
 const BasicLineChart = ({ dataList, yConfig }: LineChartProps) => {
-  const canvasAreaRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const { setCanvas, canvasSize } = useChartInfo();
-
-  const updateDimensions = useCallback(() => {
-    if (!canvasAreaRef.current) return;
-
-    const screenWidth = canvasAreaRef.current.offsetWidth;
-    const screenHeight = canvasAreaRef.current.offsetHeight;
-    const isLandscape = screenWidth > screenHeight;
-    const newHeight = screenWidth * (3 / 4);
-
-    setCanvas({ screenWidth, calculatedHeight: newHeight });
-  }, [setCanvas]);
+  const { canvasSize, ctx, canvasContainerRef, canvasRef, updateCanvasSize } =
+    useChartInfo();
 
   const handleClick = (
     e:
@@ -208,46 +196,22 @@ const BasicLineChart = ({ dataList, yConfig }: LineChartProps) => {
   };
 
   useEffect(() => {
-    window.addEventListener('resize', updateDimensions);
-    updateDimensions();
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-    };
-  }, [updateDimensions]);
-
-  //  캔버스의 사이즈 지정
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const { canvasHeight, canvasWidth, chartHeight, chartWidth } =
-          canvasSize;
-
-        const dpr = window.devicePixelRatio;
-
-        canvas.width = canvasWidth * dpr;
-        canvas.height = canvasHeight * dpr;
-
-        canvas.style.width = `${canvasWidth}px`;
-        canvas.style.height = `${canvasHeight}px`;
-        ctx.scale(dpr, dpr);
-
-        drawLineChart({
-          ctx,
-          canvasWidth,
-          canvasHeight,
-          chartWidth,
-          chartHeight,
-          yAxisValueList: dataList.map((v) => Number(v.value)),
-          yConfig,
-        });
-      }
+    if (ctx) {
+      const { canvasHeight, canvasWidth, chartHeight, chartWidth } = canvasSize;
+      drawLineChart({
+        ctx,
+        canvasWidth,
+        canvasHeight,
+        chartWidth,
+        chartHeight,
+        yAxisValueList: dataList.map((v) => Number(v.value)),
+        yConfig,
+      });
     }
-  }, [canvasSize, dataList, yConfig]);
+  }, [canvasSize, ctx, dataList, yConfig]);
 
   return (
-    <figure ref={canvasAreaRef} className="w-full flex">
+    <figure ref={canvasContainerRef} className="w-full flex">
       <canvas
         ref={canvasRef}
         className=""

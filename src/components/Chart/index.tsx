@@ -1,3 +1,5 @@
+import { RefObject } from 'react';
+
 export type IRateReturnHistory = {
   totalRate: number;
   rate: number;
@@ -19,7 +21,10 @@ export type TCanvasAreaWH = {
 
 export type TUseCanvasSize = {
   canvasSize: TCanvasSize;
-  setCanvas: (req: TCanvasAreaWH) => void;
+  updateCanvasSize: (req: TCanvasAreaWH) => void;
+  canvasContainerRef: RefObject<HTMLElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  ctx: CanvasRenderingContext2D | undefined;
 };
 
 export type TDrawChart = TCanvasSize & {

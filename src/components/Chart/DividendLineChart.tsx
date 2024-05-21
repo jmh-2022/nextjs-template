@@ -135,76 +135,53 @@ const DividendLineChart = ({
   dividendDataList,
   yConfig,
 }: DividendLineChartProps) => {
-  const canvasAreaRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [points, setPoints] = useState<
     { x: number; y: number; value: number; dividend: number | null }[]
   >([]);
 
-  const { setCanvas, canvasSize } = useChartInfo();
+  const { ctx, canvasSize, canvasContainerRef, canvasRef } = useChartInfo();
 
-  const updateDimensions = useCallback(() => {
-    if (!canvasAreaRef.current) return;
-    const screenWidth = canvasAreaRef.current.offsetWidth;
-    const screenHeight = canvasAreaRef.current.offsetHeight;
-    const isLandscape = screenWidth > screenHeight;
-    const newHeight = screenWidth * (3 / 4);
-    setCanvas({ screenWidth, calculatedHeight: newHeight });
-  }, [setCanvas]);
+  const drowDotAndChart = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
+      const { canvasHeight, canvasWidth, chartHeight, chartWidth } = canvasSize;
+      drawLineChart({
+        ctx,
+        canvasWidth,
+        canvasHeight,
+        chartWidth,
+        chartHeight,
+        yAxisValueList: dataList.map((v) => Number(v.value)),
+        dividendDataList: dividendDataList,
+        yConfig,
+      });
+
+      const newPoints = dividendDataList
+        .map((point, index) => {
+          const x = index * (chartWidth / (dividendDataList.length - 1));
+          const y =
+            chartHeight -
+            ((point.value - yConfig.minValue) /
+              (yConfig.maxValue - yConfig.minValue)) *
+              chartHeight;
+          return {
+            x: x,
+            y: y + TOP_PADDING,
+            value: point.value,
+            dividend: point.dividend,
+          };
+        })
+        .filter((v) => v.dividend);
+      setPoints(newPoints);
+    },
+    [canvasSize, dataList, dividendDataList, yConfig],
+  );
 
   useEffect(() => {
-    window.addEventListener('resize', updateDimensions);
-    updateDimensions();
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-    };
-  }, [updateDimensions]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const { canvasHeight, canvasWidth, chartHeight, chartWidth } =
-          canvasSize;
-        const dpr = window.devicePixelRatio;
-        canvas.width = canvasWidth * dpr;
-        canvas.height = canvasHeight * dpr;
-        canvas.style.width = `${canvasWidth}px`;
-        canvas.style.height = `${canvasHeight}px`;
-        ctx.scale(dpr, dpr);
-        drawLineChart({
-          ctx,
-          canvasWidth,
-          canvasHeight,
-          chartWidth,
-          chartHeight,
-          yAxisValueList: dataList.map((v) => Number(v.value)),
-          dividendDataList: dividendDataList,
-          yConfig,
-        });
-
-        const newPoints = dividendDataList
-          .map((point, index) => {
-            const x = index * (chartWidth / (dividendDataList.length - 1));
-            const y =
-              chartHeight -
-              ((point.value - yConfig.minValue) /
-                (yConfig.maxValue - yConfig.minValue)) *
-                chartHeight;
-            return {
-              x: x,
-              y: y + TOP_PADDING,
-              value: point.value,
-              dividend: point.dividend,
-            };
-          })
-          .filter((v) => v.dividend);
-        setPoints(newPoints);
-      }
+    if (ctx) {
+      drowDotAndChart(ctx);
     }
-  }, [canvasSize, dataList, dividendDataList, yConfig]);
+  }, [ctx, drowDotAndChart]);
 
   useEffect(() => {
     const handleDocumentClick = (e: MouseEvent) => {
@@ -222,7 +199,7 @@ const DividendLineChart = ({
 
   return (
     <figure
-      ref={canvasAreaRef}
+      ref={canvasContainerRef}
       className="w-full flex"
       style={{ position: 'relative' }}
     >
