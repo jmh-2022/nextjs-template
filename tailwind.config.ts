@@ -22,6 +22,8 @@ const config: Config = {
         'ro-label1': ['11px', '16px'],
       },
       colors: {
+        primary: '#1D4ED8',
+
         //hy 학연 축약 z
         ro: {
           main: '#ff9100',
@@ -38,6 +40,14 @@ const config: Config = {
             600: '#161A18',
           },
         },
+      },
+      boxShadow: {
+        custom:
+          '0px 1px 2px 0px rgba(0, 0, 0, 0.30) inset, 0px 1px 3px 1px rgba(0, 0, 0, 0.15) inset;',
+      },
+      transitionProperty: {
+        width: 'width',
+        transform: 'transform',
       },
     },
 

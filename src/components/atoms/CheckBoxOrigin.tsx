@@ -1,17 +1,16 @@
 import React from 'react';
-import { CheckComponentProps, InputComponent } from '.';
+import { CheckComponentOriginProps, InputComponent } from '.';
 
-export const CheckBox = ({
+export const CheckBoxOrigin = ({
   value,
-  activeComponent,
-  inactiveComponent,
+  children,
   checked = false,
   className,
   ...props
-}: CheckComponentProps) => {
+}: CheckComponentOriginProps) => {
   return (
     <label htmlFor={value} className={className}>
-      {checked ? activeComponent : inactiveComponent}
+      {children}
       <InputComponent
         {...props}
         id={value}
