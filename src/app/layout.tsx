@@ -6,6 +6,15 @@ import ModalManager from '@/components/modal/ModalManager';
 
 const inter = Inter({ subsets: ['latin'] });
 
+declare global {
+  interface Window {
+    ReactNativeWebView: any;
+    __REACT_DEVTOOLS_GLOBAL_HOOK__: any;
+    isReactNative: boolean | undefined;
+    kakao: any;
+  }
+}
+
 export const metadata: Metadata = {
   title: '리액트 템플릿',
   // description: '루틴온',

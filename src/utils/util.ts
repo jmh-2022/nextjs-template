@@ -1,9 +1,11 @@
 // import { TMemberInfo } from '@/components/common/atoms/commonAtoms';
 // import { RNEventEnum, RNEventPropsType } from './bridgeType';
 // import { JWTDecodeInfo } from '@/types/next-auth';
+import { RNEventPropsType, RNEventEnum } from '@/bridge/bridgeType';
 import { JWTDecodeInfo } from '@/types/commonResponse';
-import { NextResponse } from 'next/server';
 import React, { ReactNode, ReactElement } from 'react';
+
+import { ClassNameValue } from 'tailwind-merge';
 
 export function customLog(message?: any, ...optionalParams: any[]): void {
   if (process.env.NODE_ENV === 'development') {
@@ -17,12 +19,15 @@ export function customLog(message?: any, ...optionalParams: any[]): void {
 
 export function debounce(func: Function, wait: number): Function {
   let timeout: NodeJS.Timeout;
+
   return function executedFunction(...args: any[]) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
     };
+
     clearTimeout(timeout);
+
     timeout = setTimeout(later, wait);
   };
 }
@@ -32,38 +37,40 @@ export function isWindowObjectAvailable() {
   return typeof window !== 'undefined';
 }
 
-// export const reactNativeCall = (data: RNEventPropsType<RNEventEnum, any>) => {
-//     //@ts-ignore
-//     if (isWindowObjectAvailable() && window.ReactNativeWebView) {
-//         //@ts-ignore
-//         window.ReactNativeWebView.postMessage(JSON.stringify(data));
-//     }
-// };
+export const reactNativeCall = (data: RNEventPropsType<RNEventEnum, any>) => {
+  //@ts-ignore
+  if (isWindowObjectAvailable() && window.ReactNativeWebView) {
+    //@ts-ignore
+    window.ReactNativeWebView.postMessage(JSON.stringify(data));
+  }
+};
 
-// export const reactNativeLog = (message?: any, ...optionalParams: any[]) => {
-//     //@ts-ignore
-//     if (isWindowObjectAvailable() && window.ReactNativeWebView) {
-//         //@ts-ignore
-//         window.ReactNativeWebView.postMessage(
-//             JSON.stringify({
-//                 rnEvent: RNEventEnum.ConsoleLog,
-//                 rnData: '==================================== WEB LOG ====================================',
-//             } as RNEventPropsType<RNEventEnum, any>)
-//         );
-//         window.ReactNativeWebView.postMessage(
-//             JSON.stringify({
-//                 rnEvent: RNEventEnum.ConsoleLog,
-//                 rnData: { message, ...optionalParams },
-//             } as RNEventPropsType<RNEventEnum, any>)
-//         );
-//         window.ReactNativeWebView.postMessage(
-//             JSON.stringify({
-//                 rnEvent: RNEventEnum.ConsoleLog,
-//                 rnData: '==================================== WEB LOG ====================================',
-//             } as RNEventPropsType<RNEventEnum, any>)
-//         );
-//     }
-// };
+export const reactNativeLog = (message?: any, ...optionalParams: any[]) => {
+  //@ts-ignore
+  if (isWindowObjectAvailable() && window.ReactNativeWebView) {
+    //@ts-ignore
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        rnEvent: RNEventEnum.ConsoleLog,
+        rnData:
+          '==================================== WEB LOG ====================================',
+      } as RNEventPropsType<RNEventEnum, any>),
+    );
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        rnEvent: RNEventEnum.ConsoleLog,
+        rnData: { message, ...optionalParams },
+      } as RNEventPropsType<RNEventEnum, any>),
+    );
+    window.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        rnEvent: RNEventEnum.ConsoleLog,
+        rnData:
+          '==================================== WEB LOG ====================================',
+      } as RNEventPropsType<RNEventEnum, any>),
+    );
+  }
+};
 
 /**
  * @description 객체 내부의 값이 빈객체인지 체크
@@ -283,6 +290,15 @@ export function parseJwt(token?: string): JWTDecodeInfo | null {
   }
 }
 
+export const getCookie = (name: string): string | null => {
+  if (isWindowObjectAvailable()) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  }
+  return null;
+};
+
 export function isTimestampExpired(expTimestamp: number | undefined) {
   if (!expTimestamp) return true;
 
@@ -353,22 +369,6 @@ export const handleAppLaunch = () => {
 // 환경 변수 최적화
 const isProduction = process.env.NODE_ENV === 'production';
 
-// 쿠키 설정 함수
-export function setCookie(
-  res: NextResponse,
-  name: string,
-  value: string,
-  expires: number,
-) {
-  res.cookies.set(name, value, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    path: '/',
-    expires: new Date(expires),
-  });
-}
-
 export function shallowCompareNodes(
   node1: ReactNode,
   node2: ReactNode,
@@ -414,3 +414,10 @@ export function shallowCompareNodes(
 }
 
 export default shallowCompareNodes;
+
+export const makeClass = (
+  className: string,
+  ...arrays: ClassNameValue[]
+): string => {
+  return [className, ...arrays].filter(Boolean).join(' ');
+};
