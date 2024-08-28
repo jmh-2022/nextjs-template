@@ -3,13 +3,15 @@ import {
   InfiniteData,
   InfiniteQueryObserverResult,
 } from '@tanstack/react-query';
+// 공통 응답 타입
+// export interface CommonRes<T = unknown> {
+//   code: string;
+//   status: string | 'FAIL' | 'SUCCESS';
+//   data: T;
+//   message: string | null;
+// }
 
-export interface CommonRes<T = unknown> {
-  code: string;
-  status: string | 'FAIL' | 'SUCCESS';
-  data: T;
-  message: string | null;
-}
+export type CommonRes<T = unknown> = T;
 
 export type PagingData<T = unknown> = {
   list: T;

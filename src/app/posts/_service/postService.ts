@@ -9,6 +9,6 @@ type TPosts = {
   body: string;
 };
 
-export async function getPosts(): Promise<TPosts[]> {
-  return await callFetchGet(POSTS);
+export async function getPosts() {
+  return await callFetchGet<TPosts[]>(POSTS);
 }

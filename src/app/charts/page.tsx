@@ -14,6 +14,7 @@ import {
 import DividendLineChart, {
   TDividendChartData,
 } from '@/components/Chart/DividendLineChart';
+import { nextApiBaseUrl } from '@/service/apiClient';
 
 export interface TRate {
   rate: number;
@@ -27,13 +28,8 @@ export interface TRateWithDividend extends TRate {
 
 async function loadData<T>(url: string) {
   try {
-    // console.time('response_max.json');
-    const response = await fetch(
-      // 'http://localhost:3030/json/response_max.json',
-      //   'http://192.168.1.9:9090/i-routine/api/v1/etf/069660/rate-return-history?chartRangeTypeCode=MAX',
-      url,
-    );
-    // console.timeEnd('response_max.json');
+    const response = await fetch(url);
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -44,20 +40,21 @@ async function loadData<T>(url: string) {
   }
 }
 
+// const webUrl = NEXT_PUBLIC_WEB_URL
 export default async function page() {
   const rateList = await loadData<CommonRes<TRate[]>>(
-    'http://localhost:3030/json/response_1715564554552.json',
+    `${nextApiBaseUrl}/json/response_1715564554552.json`,
   );
   const dividendList = await loadData<CommonRes<TRateWithDividend[]>>(
-    'http://localhost:3030/json/response_with_dividend.json',
+    `${nextApiBaseUrl}/json/response_with_dividend.json`,
   );
   const dividendRateList = await loadData<CommonRes<IRateReturnHistory[]>>(
-    'http://localhost:3030/json/response_with_dividend_rate.json',
+    `${nextApiBaseUrl}/json/response_with_dividend_rate.json`,
   );
 
   const PriceLineChart = () => {
-    if (dividendList?.data) {
-      const dataList: TLineChartData[] = dividendList.data.map((v) => ({
+    if (dividendList) {
+      const dataList: TLineChartData[] = dividendList.map((v) => ({
         value: v.clsPrc,
         label: v.trdDd,
       }));
@@ -68,8 +65,8 @@ export default async function page() {
   };
 
   const RateLineChart = () => {
-    if (dividendList?.data) {
-      const dataList: TLineChartData[] = dividendList.data.map((v) => ({
+    if (dividendList) {
+      const dataList: TLineChartData[] = dividendList.map((v) => ({
         value: v.rate,
         label: v.trdDd,
       }));
@@ -80,19 +77,17 @@ export default async function page() {
   };
 
   const DividendPriceLineChart = () => {
-    if (dividendList?.data) {
-      const dataList: TLineChartData[] = dividendList.data.map((v) => ({
+    if (dividendList) {
+      const dataList: TLineChartData[] = dividendList.map((v) => ({
         value: v.clsPrc,
         label: v.trdDd,
       }));
 
-      const dividendDataList: TDividendChartData[] = dividendList.data.map(
-        (v) => ({
-          value: v.totalPrc,
-          dividend: v.estmStdprc,
-          label: v.trdDd,
-        }),
-      );
+      const dividendDataList: TDividendChartData[] = dividendList.map((v) => ({
+        value: v.totalPrc,
+        dividend: v.estmStdprc,
+        label: v.trdDd,
+      }));
       const yAxisConfg = getYAxisConfig(dataList, 'price');
 
       return (
@@ -105,18 +100,19 @@ export default async function page() {
     }
   };
   const DividendRateLineChart = () => {
-    if (dividendRateList?.data) {
-      const dataList: TLineChartData[] = dividendRateList.data.map((v) => ({
+    if (dividendRateList) {
+      const dataList: TLineChartData[] = dividendRateList.map((v) => ({
         value: v.rate,
         label: v.trdDd,
       }));
 
-      const dividendRateDataList: TDividendChartData[] =
-        dividendRateList.data.map((v) => ({
+      const dividendRateDataList: TDividendChartData[] = dividendRateList.map(
+        (v) => ({
           value: v.totalRate,
           dividend: v.estmStdprc,
           label: v.trdDd,
-        }));
+        }),
+      );
       const yAxisConfg = getYAxisConfig(dividendRateDataList, 'rate');
 
       return (
