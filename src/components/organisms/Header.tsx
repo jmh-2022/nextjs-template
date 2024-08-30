@@ -1,13 +1,14 @@
 'use client';
 
-import { MainColumn, DivRow } from '@/components/atoms';
+import { MainColumn, DivRow, DivColumn } from '@/components/atoms';
 import Button from '@/components/atoms/Button';
 import useModals from '@/components/modal/hooks/useModals';
 import { OverlayCenter } from '@/components/molecules/OverlayCenter';
-import ModalAlert from '@/components/organisms/ModalAlert';
 
 import Link from 'next/link';
 import ModalConfirm from './ModalConfirm';
+import { NextButton } from '../nextui/NextButton';
+import { useRouter } from 'next/navigation';
 
 /**
  * @name 헤더컴포넌트
@@ -16,6 +17,7 @@ import ModalConfirm from './ModalConfirm';
 
 export default function Header() {
   const { openModal } = useModals();
+  const { push } = useRouter();
 
   // 자기 자신을 한번 더 호출 함으로써 동일한 모달을 생성되지 않는지 확인
   const handleClick = () => {
@@ -25,7 +27,7 @@ export default function Header() {
     });
   };
   return (
-    <MainColumn className="p-4">
+    <DivColumn className="p-4 bg-slate-500 text-white">
       <DivRow className="gap-4">
         <Link href={'/posts'}>
           <Button
@@ -36,14 +38,6 @@ export default function Header() {
           />
         </Link>
 
-        <Link href={'/posts/client'}>
-          <Button
-            variant={'grey'}
-            size={'md'}
-            label="클라이언트"
-            className="text-white"
-          />
-        </Link>
         <Link href={'/charts'}>
           <Button
             variant={'grey'}
@@ -59,7 +53,15 @@ export default function Header() {
           onClick={handleClick}
           className="text-white"
         />
+        <NextButton
+          disableRipple
+          className="py-1"
+          size="sm"
+          onClick={() => push('/posts/save')}
+        >
+          생성
+        </NextButton>
       </DivRow>
-    </MainColumn>
+    </DivColumn>
   );
 }

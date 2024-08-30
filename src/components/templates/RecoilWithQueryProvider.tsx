@@ -1,5 +1,6 @@
 'use client';
 
+import { NextUIProvider } from '@nextui-org/react';
 import {
   MutationCache,
   QueryCache,
@@ -37,7 +38,9 @@ export default function RecoilWithQueryProvider({ children }: Props) {
   return (
     // Recoil이 애플리케이션의 상태를 관장하는 주된 라이브러리로서, 전체 앱을 포괄하는 것이 자연스럽다.. React Query는 데이터 페칭을 최적화하는 데 초점을 맞추고 있고, 상태 관리의 주체인 Recoil이 더 넓은 범위를 가지는 것이 적합
     <RecoilRoot>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <NextUIProvider>{children}</NextUIProvider>
+      </QueryClientProvider>
     </RecoilRoot>
   );
 }
